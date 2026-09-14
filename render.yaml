@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: skillswap-api
+    env: node
+    buildCommand: cd server && npm ci --omit=dev
+    startCommand: cd server && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://skillswap-nine-jet.vercel.app
+      - key: AUTH_EXPOSE_ACCESS_TOKEN
+        value: "false"
+      - key: AI_PROVIDER
+        value: disabled
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: ANALYTICS_SALT
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

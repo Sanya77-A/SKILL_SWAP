@@ -1,0 +1,18 @@
+import { z } from "zod";
+import { idParams, limit, page, requestSchema } from "./common.js";
+const role = z.enum(["user", "mentor", "moderator", "admin", "super_admin"]);
+const statusQuery = z.string().trim().max(40).optional();
+const listQuery = z.object({ page, limit, q: z.string().trim().max(100).optional(), status: statusQuery });
+export const adminUserListSchema = requestSchema({ query: listQuery.extend({ blocked: z.enum(["true", "false"]).optional(), role: role.optional() }) });
+export const adminResourceListSchema = requestSchema({ query: listQuery });
+export const adminSessionListSchema = requestSchema({ query: listQuery.extend({ kind: z.enum(["booking", "group", "legacy"]).default("booking") }) });
+export const adminAnalyticsSchema = requestSchema({ query: z.object({ days: z.coerce.number().int().min(1).max(365).default(30) }) });
+export const adminReportsSchema = adminResourceListSchema;
+export const adminUserIdSchema = requestSchema({ params: idParams() });
+export const adminUserUpdateSchema = requestSchema({ params: idParams(), body: z.union([z.object({ role, note: z.string().trim().max(1000).default("") }), z.object({ status: z.enum(["active", "suspended", "deactivated"]), note: z.string().trim().max(1000).default("") })]) });
+const statusBody = (values) => z.object({ status: z.enum(values), note: z.string().trim().min(3).max(1000) });
+export const adminSkillUpdateSchema = requestSchema({ params: idParams(), body: statusBody(["active", "archived"]) });
+export const adminListingUpdateSchema = requestSchema({ params: idParams(), body: statusBody(["paused", "archived"]) });
+export const adminReviewUpdateSchema = requestSchema({ params: idParams(), body: statusBody(["visible", "hidden"]) });
+export const adminCommunityUpdateSchema = requestSchema({ params: idParams(), body: statusBody(["active", "archived"]) });
+export const adminVerificationUpdateSchema = requestSchema({ params: idParams(), body: statusBody(["verified", "rejected"]) });

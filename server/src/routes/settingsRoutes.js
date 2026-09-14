@@ -1,0 +1,17 @@
+import { Router } from "express";
+import * as settings from "../controllers/settingsController.js";
+import { protect } from "../middlewares/auth.js";
+import { validate } from "../middlewares/validate.js";
+import { accessibilitySchema, accountSchema, deleteSettingsAccountSchema, learningSchema, privacySchema, sessionIdSchema } from "../validators/settings.js";
+const router = Router();
+router.use(protect);
+router.get("/", settings.getSettings);
+router.patch("/account", validate(accountSchema), settings.updateAccount);
+router.patch("/privacy", validate(privacySchema), settings.updatePrivacy);
+router.patch("/learning", validate(learningSchema), settings.updateLearning);
+router.patch("/accessibility", validate(accessibilitySchema), settings.updateAccessibility);
+router.get("/security/sessions", settings.getSessions);
+router.delete("/security/sessions/others", settings.revokeOtherSessions);
+router.delete("/security/sessions/:id", validate(sessionIdSchema), settings.revokeSession);
+router.delete("/account", validate(deleteSettingsAccountSchema), settings.deleteAccount);
+export default router;

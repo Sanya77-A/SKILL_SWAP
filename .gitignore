@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+!**/.env.example
+server/.env
+client/.env
+
+# Private keys and certificates
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+
+# Build
+dist/
+client/dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+.vercel/
+*.swp
+*.swo
+
+# Uploads (local)
+server/uploads/
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Misc
+*.tgz
+.cache
+
+# Local duplicate/reference copies (canonical files remain tracked)
+README 2.md
+SKILLSWAP_SECURITY_AUDIT 2.md
+server/src/middlewares/upload 2.js

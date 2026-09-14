@@ -1,0 +1,16 @@
+import { Router } from "express";
+import * as activity from "../controllers/activityController.js";
+import { protect } from "../middlewares/auth.js";
+import { validate } from "../middlewares/validate.js";
+import { activityIdSchema, commentIdSchema, commentsSchema, createCommentSchema, feedSchema } from "../validators/activity.js";
+const router = Router();
+router.use(protect);
+router.get("/", validate(feedSchema), activity.feed);
+router.post("/:id/like", validate(activityIdSchema), activity.like);
+router.delete("/:id/like", validate(activityIdSchema), activity.unlike);
+router.post("/:id/save", validate(activityIdSchema), activity.save);
+router.delete("/:id/save", validate(activityIdSchema), activity.unsave);
+router.get("/:id/comments", validate(commentsSchema), activity.comments);
+router.post("/:id/comments", validate(createCommentSchema), activity.comment);
+router.delete("/comments/:commentId", validate(commentIdSchema), activity.removeComment);
+export default router;

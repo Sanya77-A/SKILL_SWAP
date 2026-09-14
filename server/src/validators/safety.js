@@ -1,0 +1,11 @@
+import { z } from "zod";
+import { httpUrl, limit, objectId, page, requestSchema } from "./common.js";
+const evidenceUrls = z.array(httpUrl).max(8).default([]);
+export const blockSchema = requestSchema({ params: z.object({ userId: objectId }), body: z.object({ reason: z.string().trim().max(300).default("") }) });
+export const unblockSchema = requestSchema({ params: z.object({ userId: objectId }) });
+export const reportSchema = requestSchema({ body: z.object({ targetType: z.enum(["user", "listing", "message", "review"]), targetId: objectId, category: z.enum(["spam", "harassment", "scam", "inappropriate", "safety", "privacy", "other"]), reason: z.string().trim().min(5).max(1000), evidenceUrls }) });
+export const disputeSchema = requestSchema({ params: z.object({ bookingId: objectId }), body: z.object({ category: z.enum(["no_show", "service_quality", "harassment", "misrepresentation", "payment", "safety", "other"]), description: z.string().trim().min(10).max(3000), evidenceUrls }) });
+export const moderationListSchema = requestSchema({ query: z.object({ status: z.string().trim().max(40).optional(), page, limit }) });
+export const safetyListSchema = requestSchema({ query: z.object({ page, limit }) });
+export const moderateReportSchema = requestSchema({ params: z.object({ id: objectId }), body: z.object({ status: z.enum(["triaged", "in_review", "resolved", "dismissed"]), note: z.string().trim().min(3).max(2000) }) });
+export const moderateDisputeSchema = requestSchema({ params: z.object({ id: objectId }), body: z.object({ status: z.enum(["under_review", "resolved_refund", "resolved_no_action", "dismissed"]), note: z.string().trim().min(3).max(2000) }) });

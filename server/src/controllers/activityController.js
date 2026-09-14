@@ -1,0 +1,10 @@
+import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { addComment, listComments, listFeed, removeComment as removeActivityComment, setLike, setSave } from "../services/activityService.js";
+export const feed = asyncHandler(async (req, res) => res.json({ success: true, ...await listFeed(req.user._id, req.query) }));
+export const like = asyncHandler(async (req, res) => res.json({ success: true, data: await setLike(req.params.id, req.user._id, true) }));
+export const unlike = asyncHandler(async (req, res) => res.json({ success: true, data: await setLike(req.params.id, req.user._id, false) }));
+export const save = asyncHandler(async (req, res) => res.json({ success: true, data: await setSave(req.params.id, req.user._id, true) }));
+export const unsave = asyncHandler(async (req, res) => res.json({ success: true, data: await setSave(req.params.id, req.user._id, false) }));
+export const comments = asyncHandler(async (req, res) => res.json({ success: true, ...await listComments(req.params.id, req.user._id, req.query) }));
+export const comment = asyncHandler(async (req, res) => res.status(201).json({ success: true, data: await addComment(req.params.id, req.user._id, req.body.body) }));
+export const removeComment = asyncHandler(async (req, res) => res.json({ success: true, data: await removeActivityComment(req.params.commentId, req.user) }));

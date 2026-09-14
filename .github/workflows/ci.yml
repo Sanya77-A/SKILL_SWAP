@@ -1,0 +1,41 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+      - name: Install (server)
+        run: cd server && npm ci
+      - name: Test (server)
+        run: cd server && npm test -- --runInBand
+      - name: Build check (server)
+        run: cd server && node -e "import('./src/app.js')"
+
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+      - name: Install (client)
+        run: cd client && npm ci
+      - name: Build (client)
+        run: cd client && npm run build

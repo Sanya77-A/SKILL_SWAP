@@ -1,0 +1,14 @@
+import GroupSession from "../models/GroupSession.js";
+import GroupSessionEnrollment from "../models/GroupSessionEnrollment.js";
+import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { getPagination, paginatedResponse } from "../utils/pagination.js";
+import { createGroupSession, transitionGroupSession, enrollGroupSession, cancelEnrollment } from "../services/groupSessionService.js";
+import { createActivity } from "../services/activityService.js";
+export const create = asyncHandler(async (req, res) => res.status(201).json({ success: true, data: await createGroupSession(req.user._id, req.body) }));
+export const list = asyncHandler(async (req, res) => { const { page, limit, skip } = getPagination(req.query); const filter = { ...(req.query.mine ? { mentor: req.user._id } : { status: { $in: ["published", "full", "in_progress", "completed"] } }), ...(req.query.skillId && { skill: req.query.skillId }), ...(req.query.mentorId && { mentor: req.query.mentorId }), ...(req.query.status && { status: req.query.status }) }; const [data, total, enrolled] = await Promise.all([GroupSession.find(filter).populate("skill", "name slug category").populate("mentor", "name fullName username profilePhoto headline ratingAvg").sort({ startAt: 1 }).skip(skip).limit(limit).lean(), GroupSession.countDocuments(filter), GroupSessionEnrollment.distinct("groupSession", { participant: req.user._id, status: "enrolled" })]); const set = new Set(enrolled.map(String)); res.json({ success: true, ...paginatedResponse(data.map((item) => ({ ...item, enrolled: set.has(item._id.toString()) })), total, page, limit) }); });
+export const publish = asyncHandler(async (req, res) => { const data = await transitionGroupSession(req.user._id, req.params.id, "publish"); await createActivity({ actor: req.user._id, type: "group_session_announced", title: `Announced ${data.title}`, body: data.description.slice(0, 300), link: "/group-sessions", skill: data.skill?._id || data.skill, entityType: "group_session", entityId: data._id, visibility: "members", dedupeKey: `group-session:${data._id}:published` }).catch(() => {}); res.json({ success: true, data }); });
+export const cancel = asyncHandler(async (req, res) => res.json({ success: true, data: await transitionGroupSession(req.user._id, req.params.id, "cancel") }));
+export const start = asyncHandler(async (req, res) => res.json({ success: true, data: await transitionGroupSession(req.user._id, req.params.id, "start") }));
+export const complete = asyncHandler(async (req, res) => res.json({ success: true, data: await transitionGroupSession(req.user._id, req.params.id, "complete") }));
+export const enroll = asyncHandler(async (req, res) => res.json({ success: true, data: await enrollGroupSession(req.user._id, req.params.id) }));
+export const withdraw = asyncHandler(async (req, res) => res.json({ success: true, data: await cancelEnrollment(req.user._id, req.params.id) }));

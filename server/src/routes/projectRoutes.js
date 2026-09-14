@@ -1,0 +1,13 @@
+import { Router } from "express";
+import * as project from "../controllers/projectController.js";
+import { protect } from "../middlewares/auth.js";
+import { validate } from "../middlewares/validate.js";
+import { createProjectSchema, projectIdSchema, updateProjectSchema } from "../validators/project.js";
+const router = Router();
+router.use(protect);
+router.get("/me", project.mine);
+router.post("/", validate(createProjectSchema), project.create);
+router.patch("/:id", validate(updateProjectSchema), project.update);
+router.post("/:id/publish", validate(projectIdSchema), project.publish);
+router.post("/:id/archive", validate(projectIdSchema), project.archive);
+export default router;
